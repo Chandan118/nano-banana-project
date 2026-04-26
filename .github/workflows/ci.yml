@@ -33,7 +33,6 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        # Install core deps only (skip sphinx/docs which are not needed in CI)
         pip install numpy scipy scikit-learn matplotlib pandas
         pip install pytest pytest-cov flake8
         if [ -f setup.py ]; then pip install -e . --no-deps; fi
@@ -44,7 +43,11 @@ jobs:
         flake8 . --count --exit-zero --max-line-length=127 --statistics
       continue-on-error: true
 
-    - name: Run tests
+    - name: Run tests (exit code 5 = no tests is OK)
       run: |
-        # Exit code 5 = no tests collected — treat as success
-        pytest -v || EXIT=$?; [ "${EXIT:-0}" = "5" ] && echo "No tests found — OK" || exit ${EXIT:-0}
+        python -m pytest -v; CODE=$?
+        if [ "$CODE" = "5" ]; then
+          echo "No tests collected — skipping (exit 5 is OK)"
+          exit 0
+        fi
+        exit $CODE
