@@ -80,9 +80,12 @@ class NanoBananaModel:
         """
         vector = features.to_vector()
 
-        # Normalize using simple min-max scaling (placeholder)
-        # In production, use trained normalization parameters
-        normalized = (vector - vector.min()) / (vector.max() - vector.min() + 1e-8)
+        # Simple normalization using fixed reasonable ranges for each feature
+        # [length(0-30), diameter(0-10), color(0-1), weight(0-300), firmness(0-10), temp(0-40)]
+        max_vals = np.array([30.0, 10.0, 1.0, 300.0, 10.0, 40.0])
+        min_vals = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        
+        normalized = (vector - min_vals) / (max_vals - min_vals + 1e-8)
 
         logger.debug("Preprocessing complete")
         return normalized
